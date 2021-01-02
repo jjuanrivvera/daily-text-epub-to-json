@@ -1,11 +1,11 @@
 {
-  "name": "daily-text-epub-to-mongodb",
+  "name": "daily-text-epub-to-json",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "unzip": "cd Lab && node ../unzip"
+    "unzip": "mkdir -p Lab && cd Lab && node ../unzip.js"
   },
   "keywords": [],
   "author": "",

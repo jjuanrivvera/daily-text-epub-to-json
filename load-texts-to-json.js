@@ -128,7 +128,7 @@ const formatText = (content) => {
     return TextObject;
 }
 
-//Read all xhtml files from OEBPS folder
+//Read all xhtml files from OEBPS folder and convert them to JSON
 fs.readdir("./Lab/OEBPS/", (err, files) => {
     let jsFiles = files.filter((f) => f.split(".").pop() === "xhtml");
     let texts = [];
