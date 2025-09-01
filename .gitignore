@@ -1,3 +1,41 @@
+# Environment variables
 .env
+
+# Dependencies
+node_modules/
+
+# Output files
 output.*
-node_modules
+*.json
+!package.json
+!package-lock.json
+
+# Extracted EPUB content
+Lab/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Log files
+*.log
+npm-debug.log*
+
+# Analysis and documentation (temporary)
+DEEP_ANALYSIS.md
+CLAUDE.md
+.claude/
+
+# Debug and test files
+debug-*.js
+test-*.js
+
+# Coverage reports
+coverage/
+
+# Temporary files
+*.tmp
+*.temp

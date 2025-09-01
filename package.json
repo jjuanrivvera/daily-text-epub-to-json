@@ -1,11 +1,22 @@
 {
   "name": "daily-text-epub-to-json",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "Convert JW daily text EPUBs to JSON format",
+  "main": "src/index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "unzip": "mkdir -p Lab && cd Lab && node ../unzip.js"
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "extract": "node src/index.js extract",
+    "process": "node src/index.js process",
+    "build": "node src/index.js build",
+    "extract:legacy": "node extract-epub.cjs",
+    "process:legacy": "node load-texts-to-json.cjs",
+    "build:legacy": "npm run extract:legacy && npm run process:legacy"
   },
   "keywords": [],
   "author": "",
@@ -16,5 +27,14 @@
     "node-stream-zip": "^1.12.0",
     "sanitize-html": "^2.3.0",
     "yauzl": "^2.10.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@types/jest": "^30.0.0",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "jest": "^30.1.2",
+    "prettier": "^3.6.2"
   }
 }
