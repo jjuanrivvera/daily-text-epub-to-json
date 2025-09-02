@@ -48,6 +48,9 @@ export class FileProcessor {
       // Filter out null results
       const validTexts = results.filter((text) => text !== null);
 
+      // Sort by date (YYYY-MM-DD format sorts correctly as strings)
+      validTexts.sort((a, b) => a.date.localeCompare(b.date));
+
       logger.success(`Successfully processed ${validTexts.length} daily texts`);
 
       return validTexts;

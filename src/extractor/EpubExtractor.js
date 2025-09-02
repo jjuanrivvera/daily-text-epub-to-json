@@ -2,15 +2,17 @@ import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
 import logger from '../utils/logger.js';
+import { YearDetector } from '../utils/YearDetector.js';
 
 /**
- * Handles EPUB file extraction
+ * Handles EPUB file extraction with automatic year detection
  */
 export class EpubExtractor {
-  constructor(year) {
+  constructor(year = null, epubPath = null) {
     this.year = year;
-    this.shortYear = year.slice(-2);
-    this.epubFilename = `es${this.shortYear}_S.zip`;
+    this.epubPath = epubPath;
+    this.shortYear = year ? String(year).slice(-2) : null;
+    this.epubFilename = year ? `es${this.shortYear}_S.zip` : null;
   }
 
   /**
@@ -19,16 +21,36 @@ export class EpubExtractor {
    */
   async extract() {
     try {
-      const epubPath = path.join(process.cwd(), 'Epubs', this.epubFilename);
-
-      // Check if EPUB file exists
-      try {
-        await fs.access(epubPath);
-      } catch {
-        throw new Error(`EPUB file not found: ${epubPath}`);
+      // Auto-detect year and determine file path
+      let actualEpubPath;
+      
+      if (this.epubPath) {
+        // Explicit EPUB path provided
+        actualEpubPath = this.epubPath;
+        
+        // Auto-detect year if not provided
+        if (!this.year) {
+          logger.info('Auto-detecting year from EPUB content...');
+          this.year = await YearDetector.detectYear(actualEpubPath);
+          this.shortYear = this.year.slice(-2);
+          this.epubFilename = path.basename(actualEpubPath);
+          logger.success(`Year detected: ${this.year}`);
+        }
+      } else if (this.year) {
+        // Legacy mode: construct path from year
+        actualEpubPath = path.join(process.cwd(), 'Epubs', this.epubFilename);
+      } else {
+        throw new Error('Either year or epubPath must be provided');
       }
 
-      logger.info(`Extracting EPUB for year ${this.year}: ${this.epubFilename}`);
+      // Verify file exists
+      try {
+        await fs.access(actualEpubPath);
+      } catch {
+        throw new Error(`EPUB file not found: ${actualEpubPath}`);
+      }
+
+      logger.info(`Extracting EPUB for year ${this.year}: ${path.basename(actualEpubPath)}`);
 
       // Clean Lab directory
       await this.cleanLabDirectory();
@@ -37,7 +59,7 @@ export class EpubExtractor {
       await fs.mkdir('Lab', { recursive: true });
 
       // Extract using unzip.js
-      await this.runExtraction(epubPath);
+      await this.runExtraction(actualEpubPath);
 
       logger.success('Extraction completed successfully!');
       return true;

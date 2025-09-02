@@ -18,15 +18,16 @@ export class Config {
   }
 
   validate() {
-    if (!this.year) {
-      throw new Error('YEAR environment variable is required in .env file');
-    }
-
-    if (!/^\d{4}$/.test(this.year)) {
+    // Year validation (optional now for auto-detection)
+    if (this.year && !/^\d{4}$/.test(this.year)) {
       throw new Error('YEAR must be a 4-digit year (e.g., 2025)');
     }
 
-    logger.info(`Configuration loaded for year ${this.year}`);
+    if (this.year) {
+      logger.info(`Configuration loaded with explicit year ${this.year}`);
+    } else {
+      logger.info('Configuration loaded - year will be auto-detected from EPUB');
+    }
 
     if (this.mongoDsn) {
       logger.info('MongoDB connection string found');

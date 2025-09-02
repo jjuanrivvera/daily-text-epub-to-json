@@ -21,14 +21,14 @@ export class DateFormatter {
         return null;
       }
 
-      // Extract day number
-      const dayMatch = dateText.match(/\d+/g);
+      // Extract day number - only the first number occurrence
+      const dayMatch = dateText.match(/\d+/);
       if (!dayMatch) {
         logger.warn(`No day number found in: ${dateText}`);
         return null;
       }
 
-      let day = dayMatch.join('');
+      let day = dayMatch[0];
       if (day.length === 1) {
         day = `0${day}`;
       }

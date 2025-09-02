@@ -49,6 +49,9 @@ export class TextParser {
       }
 
       let dateText = dateMatch[1];
+      
+      // Remove page number spans and other span tags
+      dateText = dateText.replace(/<span[^>]*>.*?<\/span>/gs, '').trim();
 
       // Check if this is the Memorial (Conmemoración)
       if (dateText.includes('CONMEMORACIÓN')) {
