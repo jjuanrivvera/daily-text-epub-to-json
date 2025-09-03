@@ -23,11 +23,11 @@ export class EpubExtractor {
     try {
       // Auto-detect year and determine file path
       let actualEpubPath;
-      
+
       if (this.epubPath) {
         // Explicit EPUB path provided
         actualEpubPath = this.epubPath;
-        
+
         // Auto-detect year if not provided
         if (!this.year) {
           logger.info('Auto-detecting year from EPUB content...');

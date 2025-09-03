@@ -11,7 +11,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,15 +39,15 @@ jobs:
           release_name: Release ${{ github.ref }}
           body: |
             ## Changes in this Release
-            
+
             ### Features
             - Automated release from tag ${{ github.ref }}
-            
+
             ### Installation
             ```bash
             npm install
             ```
-            
+
             ### Usage
             See README for usage instructions.
           draft: false

@@ -38,7 +38,7 @@ jobs:
           # Create a test .env file for CI
           echo "EPUB_FILE=es25_S.zip" > .env
           echo "YEAR=2025" >> .env
-          
+
           # Check if the EPUB file exists in the repo for testing
           if [ -f "Epubs/es25_S.zip" ]; then
             echo "Testing with existing EPUB file"

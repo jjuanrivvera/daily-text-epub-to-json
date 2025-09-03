@@ -5,7 +5,7 @@ import prettierConfig from 'eslint-config-prettier';
 export default [
   js.configs.recommended,
   {
-    ignores: ['node_modules/**', 'dist/**', 'coverage/**', 'Lab/**', 'output.json'],
+    ignores: ['node_modules/**', 'dist/**', 'coverage/**', 'Lab/**', 'output.json', 'web/**'],
   },
   {
     files: ['**/*.js', '**/*.mjs'],
@@ -31,6 +31,13 @@ export default [
         process: 'readonly',
         Buffer: 'readonly',
         URL: 'readonly',
+        global: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
       },
     },
   },

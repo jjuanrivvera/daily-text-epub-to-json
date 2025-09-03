@@ -13,10 +13,10 @@ class DailyTextProcessor {
     // Only use config year if no epubPath is provided (legacy mode)
     this.year = year || (!epubPath ? config.getYear() : null);
     this.epubPath = epubPath;
-    
+
     // Initialize extractor with flexible parameters
     this.extractor = new EpubExtractor(this.year, this.epubPath);
-    
+
     // Processor will be initialized after year is determined
     this.processor = null;
   }
@@ -27,7 +27,7 @@ class DailyTextProcessor {
   async run() {
     try {
       logger.info('Starting Daily Text EPUB to JSON processor');
-      
+
       // Show initial year (may be null for auto-detection)
       if (this.year) {
         logger.info(`Processing year: ${this.year}`);
@@ -38,13 +38,13 @@ class DailyTextProcessor {
       // Step 1: Extract EPUB (this may auto-detect the year)
       logger.info('Step 1: Extracting EPUB file...');
       await this.extractor.extract();
-      
+
       // Update year from extraction if it was auto-detected
       if (!this.year && this.extractor.year) {
         this.year = this.extractor.year;
         logger.info(`Using detected year: ${this.year}`);
       }
-      
+
       // Initialize processor now that we have the year
       if (!this.processor) {
         this.processor = new FileProcessor(this.year);
@@ -119,13 +119,13 @@ class DailyTextProcessor {
     try {
       logger.info('Running extraction only...');
       await this.extractor.extract();
-      
+
       // Update year from extraction if it was auto-detected
       if (!this.year && this.extractor.year) {
         this.year = this.extractor.year;
         logger.info(`Year detected: ${this.year}`);
       }
-      
+
       logger.success('Extraction complete!');
     } catch (error) {
       logger.error('Extraction failed', error);
@@ -139,7 +139,7 @@ class DailyTextProcessor {
   async processOnly() {
     try {
       logger.info('Running processing only...');
-      
+
       // Initialize processor if not already done (year should be known by now)
       if (!this.processor) {
         if (!this.year) {
@@ -147,7 +147,7 @@ class DailyTextProcessor {
         }
         this.processor = new FileProcessor(this.year);
       }
-      
+
       const dailyTexts = await this.processor.processFiles();
       await this.processor.saveToJson(dailyTexts);
 

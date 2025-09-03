@@ -216,12 +216,12 @@ body {
   #root {
     padding: 1rem;
   }
-  
+
   .stats {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .card {
     padding: 1.5em;
   }

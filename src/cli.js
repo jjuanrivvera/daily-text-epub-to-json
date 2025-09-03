@@ -24,7 +24,7 @@ class DailyTextCLI {
    */
   setupProgram() {
     const packageJson = this.getPackageInfo();
-    
+
     this.program
       .name('daily-text-epub-to-json')
       .description('Convert JW daily text EPUBs to JSON format')
@@ -37,13 +37,16 @@ class DailyTextCLI {
       .option('--extract-only', 'Only extract EPUB, do not process')
       .option('--process-only', 'Only process extracted files (assumes extraction done)')
       .helpOption('-h, --help', 'Display help for command')
-      .addHelpText('after', `
+      .addHelpText(
+        'after',
+        `
 Examples:
   $ npx daily-text-epub-to-json es25_S.epub
   $ daily-text-epub-to-json es25_S.epub --year 2025 --verbose
   $ daily-text-epub-to-json es25_S.epub --output ./custom-output.json
   $ daily-text-epub-to-json es25_S.epub --mongo --verbose
-      `);
+      `
+      );
 
     this.program.action((epubPath, options) => {
       this.handleCommand(epubPath, options);
@@ -58,7 +61,7 @@ Examples:
       const packagePath = join(__dirname, '..', 'package.json');
       const packageContent = readFileSync(packagePath, 'utf8');
       return JSON.parse(packageContent);
-    } catch (error) {
+    } catch {
       return { version: '1.0.0' }; // Fallback version
     }
   }
@@ -149,12 +152,12 @@ Examples:
       logger.success('CLI execution completed successfully!');
     } catch (error) {
       logger.error('CLI execution failed', error);
-      
+
       if (options.verbose) {
         console.error('\nFull error stack:');
         console.error(error);
       }
-      
+
       process.exit(1);
     }
   }
@@ -165,7 +168,7 @@ Examples:
   validateYear(yearStr) {
     const year = parseInt(yearStr, 10);
     const currentYear = new Date().getFullYear();
-    
+
     if (isNaN(year)) {
       logger.error(`Invalid year: ${yearStr}. Year must be a number.`);
       process.exit(1);

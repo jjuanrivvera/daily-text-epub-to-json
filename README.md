@@ -73,7 +73,7 @@ Create a `.env` file in the project root (optional for CLI usage):
 
 ```env
 # Optional - Auto-detected from EPUB content if not specified
-EPUB_FILE=es25_S.zip    # Name of the EPUB file in the Epubs folder  
+EPUB_FILE=es25_S.zip    # Name of the EPUB file in the Epubs folder
 YEAR=2025                # Year of the daily texts (auto-detected if omitted)
 
 # Optional - MongoDB configuration
@@ -104,9 +104,10 @@ daily-text-epub-to-json/
 The web interface provides a modern, user-friendly way to process EPUB files:
 
 #### Features
+
 - **Drag & Drop Upload**: Simply drag your EPUB file onto the upload area
 - **Real-time Progress**: Watch the extraction and processing progress live
-- **Interactive JSON Viewer**: 
+- **Interactive JSON Viewer**:
   - Preview mode with expandable daily texts
   - Raw JSON mode with syntax highlighting
   - Copy to clipboard functionality
@@ -128,6 +129,7 @@ cd web && npm run dev  # Start web interface on port 5174
 Access the web interface at: http://localhost:5174
 
 #### Web Interface Usage
+
 1. Open http://localhost:5174 in your browser
 2. Drag and drop your EPUB file or click to select
 3. Watch real-time processing progress
@@ -141,6 +143,7 @@ The REST API server provides programmatic access to the processing functionality
 #### API Endpoints
 
 ##### `POST /api/process`
+
 Process an EPUB file and return JSON data.
 
 ```bash
@@ -150,13 +153,15 @@ curl -X POST http://localhost:3001/api/process \
 ```
 
 **Request:**
+
 - Method: `POST`
 - Content-Type: `multipart/form-data`
 - Body: EPUB file as form data
-- Headers: 
+- Headers:
   - `X-Session-ID`: Unique session identifier for SSE events
 
 **Response:**
+
 ```json
 {
   "jobId": "job-1234567890",
@@ -166,6 +171,7 @@ curl -X POST http://localhost:3001/api/process \
 ```
 
 ##### `GET /api/events/:sessionId`
+
 Server-Sent Events endpoint for real-time progress updates.
 
 ```javascript
@@ -177,12 +183,14 @@ eventSource.onmessage = (event) => {
 ```
 
 **Event Types:**
+
 - `connected`: Connection established
 - `progress`: Processing progress update
 - `complete`: Processing completed
 - `error`: Processing error
 
 ##### `GET /api/download/:resultId`
+
 Download processed JSON results.
 
 ```bash
@@ -190,6 +198,7 @@ curl http://localhost:3001/api/download/result-id-1234 -o output.json
 ```
 
 ##### `GET /api/health`
+
 Health check endpoint.
 
 ```bash
@@ -197,6 +206,7 @@ curl http://localhost:3001/api/health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -240,16 +250,16 @@ npx daily-text-epub-to-json es25_S.epub --process-only
 
 #### CLI Options
 
-| Option | Description |
-|--------|-------------|
-| `--year <year>` | Override automatic year detection |
-| `--output <path>` | Custom output path for JSON file |
-| `--mongo` | Enable MongoDB storage |
-| `--verbose` | Enable verbose logging |
-| `--extract-only` | Only extract EPUB, don't process |
-| `--process-only` | Only process files, skip extraction |
-| `-V, --version` | Display version information |
-| `-h, --help` | Display help information |
+| Option            | Description                         |
+| ----------------- | ----------------------------------- |
+| `--year <year>`   | Override automatic year detection   |
+| `--output <path>` | Custom output path for JSON file    |
+| `--mongo`         | Enable MongoDB storage              |
+| `--verbose`       | Enable verbose logging              |
+| `--extract-only`  | Only extract EPUB, don't process    |
+| `--process-only`  | Only process files, skip extraction |
+| `-V, --version`   | Display version information         |
+| `-h, --help`      | Display help information            |
 
 ### npm Scripts
 
@@ -280,7 +290,7 @@ The tool generates an `output.json` file with 365 daily texts:
     "textContent": "Porque tanto amó Dios al mundo que dio a su Hijo unigénito.",
     "explanation": "Detailed explanation of the scripture...",
     "reference": "w23.01 15 párr. 10"
-  },
+  }
   // ... 364 more entries
 ]
 ```
@@ -319,12 +329,14 @@ npm run format
 The project uses a modular ES6 architecture with three main components:
 
 #### Core Processing Engine
+
 - **Parser Module**: Handles XHTML parsing with dual strategy
-- **Formatter Module**: Date and reference formatting  
+- **Formatter Module**: Date and reference formatting
 - **Storage Module**: JSON and MongoDB persistence
 - **Utils Module**: Shared constants and logging
 
 #### Web Interface (React + Vite)
+
 - **React Components**: Modular UI components
 - **Custom Hooks**: `useEpubProcessor` for state management
 - **Real-time Updates**: Server-Sent Events integration
@@ -336,6 +348,7 @@ The project uses a modular ES6 architecture with three main components:
   - Clipboard API integration
 
 #### API Server (Express.js)
+
 - **RESTful Endpoints**: Clean API design
 - **SSE Support**: Real-time progress streaming
 - **File Management**: Multer for file uploads
@@ -380,30 +393,33 @@ The project includes GitHub Actions workflows for:
 ## 📦 Scripts Reference
 
 ### Main Scripts
-| Script | Description |
-|--------|-------------|
-| `npm run dev:all` | Start both web interface and API server |
-| `npm run dev:server` | Start API server in development mode |
-| `npm run dev:web` | Start web interface in development mode |
-| `npm run start:server` | Start API server in production mode |
-| `npm run build` | Complete extraction and processing |
-| `npm run cli <file>` | Run CLI with an EPUB file |
+
+| Script                 | Description                             |
+| ---------------------- | --------------------------------------- |
+| `npm run dev:all`      | Start both web interface and API server |
+| `npm run dev:server`   | Start API server in development mode    |
+| `npm run dev:web`      | Start web interface in development mode |
+| `npm run start:server` | Start API server in production mode     |
+| `npm run build`        | Complete extraction and processing      |
+| `npm run cli <file>`   | Run CLI with an EPUB file               |
 
 ### Processing Scripts
-| Script | Description |
-|--------|-------------|
-| `npm run extract` | Extract EPUB to Lab folder |
-| `npm run process` | Process Lab files to JSON |
+
+| Script                 | Description                 |
+| ---------------------- | --------------------------- |
+| `npm run extract`      | Extract EPUB to Lab folder  |
+| `npm run process`      | Process Lab files to JSON   |
 | `npm run build:legacy` | Run legacy CommonJS version |
 
 ### Development Scripts
-| Script | Description |
-|--------|-------------|
-| `npm test` | Run Jest test suite |
+
+| Script                  | Description                    |
+| ----------------------- | ------------------------------ |
+| `npm test`              | Run Jest test suite            |
 | `npm run test:coverage` | Run tests with coverage report |
-| `npm run lint` | Check code with ESLint |
-| `npm run lint:fix` | Auto-fix ESLint issues |
-| `npm run format` | Format code with Prettier |
+| `npm run lint`          | Check code with ESLint         |
+| `npm run lint:fix`      | Auto-fix ESLint issues         |
+| `npm run format`        | Format code with Prettier      |
 
 ## 🤝 Contributing
 
