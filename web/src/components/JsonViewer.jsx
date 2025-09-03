@@ -2,45 +2,59 @@ import React, { useState, useCallback, useRef } from 'react';
 import {
   Eye,
   EyeOff,
-  ChevronDown,
-  ChevronRight,
   Calendar,
   FileText,
   Hash,
   Copy,
   Check,
   AlertCircle,
+  BookOpen,
+  MessageSquare,
+  Link2,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 function JsonViewer({ data }) {
-  const [showPreview, setShowPreview] = useState(true);
-  const [expandedItems, setExpandedItems] = useState(new Set([0, 1, 2])); // Show first 3 items expanded
-  const [viewMode, setViewMode] = useState('preview'); // 'preview' | 'raw'
-  const [expandedTexts, setExpandedTexts] = useState(new Set()); // Track which texts are fully expanded
-  const [copyStatus, setCopyStatus] = useState('idle'); // 'idle' | 'copying' | 'success' | 'error'
+  const [expandedItems, setExpandedItems] = useState(['item-0', 'item-1', 'item-2']);
+  const [expandedTexts, setExpandedTexts] = useState(new Set());
+  const [copyStatus, setCopyStatus] = useState('idle');
   const timeoutRef = useRef(null);
 
-  const toggleExpanded = (index) => {
-    const newExpanded = new Set(expandedItems);
+  const toggleExpandedText = (index) => {
+    const newExpanded = new Set(expandedTexts);
     if (newExpanded.has(index)) {
       newExpanded.delete(index);
     } else {
       newExpanded.add(index);
     }
-    setExpandedItems(newExpanded);
+    setExpandedTexts(newExpanded);
   };
 
   const expandAll = () => {
-    setExpandedItems(new Set(data.map((_, index) => index)));
+    setExpandedItems(data.map((_, index) => `item-${index}`));
   };
 
   const collapseAll = () => {
-    setExpandedItems(new Set());
+    setExpandedItems([]);
   };
 
   const formatDate = (dateStr) => {
     try {
-      // Parse as local date to avoid timezone issues
       const [year, month, day] = dateStr.split('-').map(Number);
       const date = new Date(year, month - 1, day);
       return date.toLocaleDateString('en-US', {
@@ -59,16 +73,13 @@ function JsonViewer({ data }) {
     return text.substring(0, maxLength) + '...';
   };
 
-  // Enhanced clipboard copy function with fallback
   const copyToClipboard = useCallback(async (text) => {
     try {
-      // Modern Clipboard API (preferred)
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
         return true;
       }
 
-      // Fallback for older browsers or non-HTTPS
       const textArea = document.createElement('textarea');
       textArea.value = text;
       textArea.style.position = 'fixed';
@@ -90,11 +101,10 @@ function JsonViewer({ data }) {
   }, []);
 
   const handleCopyJson = useCallback(async () => {
-    if (copyStatus === 'copying') return; // Prevent multiple simultaneous copies
+    if (copyStatus === 'copying') return;
 
     setCopyStatus('copying');
 
-    // Clear any existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -105,7 +115,6 @@ function JsonViewer({ data }) {
 
       setCopyStatus(success ? 'success' : 'error');
 
-      // Reset status after 2 seconds
       timeoutRef.current = setTimeout(() => {
         setCopyStatus('idle');
       }, 2000);
@@ -119,7 +128,6 @@ function JsonViewer({ data }) {
     }
   }, [data, copyToClipboard, copyStatus]);
 
-  // Cleanup timeout on unmount
   React.useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -128,356 +136,222 @@ function JsonViewer({ data }) {
     };
   }, []);
 
-  // Early return after all hooks
   if (!data || !Array.isArray(data) || data.length === 0) {
     return (
-      <div>
-        <h3>JSON Preview</h3>
-        <div
-          style={{
-            padding: '2rem',
-            textAlign: 'center',
-            opacity: 0.6,
-            background: 'rgba(0, 0, 0, 0.2)',
-            borderRadius: '8px',
-          }}
-        >
-          No data to display
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>JSON Preview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>No data to display</AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1rem',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}
-      >
-        <h3 style={{ margin: 0 }}>JSON Preview</h3>
-
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <button
-            className={`button ${viewMode === 'preview' ? 'primary' : 'secondary'}`}
-            onClick={() => setViewMode('preview')}
-            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
-          >
-            Preview
-          </button>
-          <button
-            className={`button ${viewMode === 'raw' ? 'primary' : 'secondary'}`}
-            onClick={() => setViewMode('raw')}
-            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
-          >
-            Raw JSON
-          </button>
+    <Card className="w-full">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-2xl">JSON Results</CardTitle>
+            <CardDescription className="mt-1">Extracted daily texts from EPUB file</CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="font-mono">
+              <Hash className="mr-1 h-3 w-3" />
+              {data.length} entries
+            </Badge>
+            <Badge variant="outline" className="font-mono">
+              <FileText className="mr-1 h-3 w-3" />
+              {Math.round(JSON.stringify(data).length / 1024)} KB
+            </Badge>
+          </div>
         </div>
-      </div>
-
-      <div
-        style={{
-          fontSize: '0.875rem',
-          opacity: 0.7,
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-          flexWrap: 'wrap',
-        }}
-      >
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-          <Hash size={14} />
-          {data.length} entries
-        </span>
         {data[0]?.date && (
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-            <Calendar size={14} />
-            {formatDate(data[0].date)} - {formatDate(data[data.length - 1]?.date)}
-          </span>
+          <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+            <Calendar className="h-4 w-4" />
+            <span>
+              {formatDate(data[0].date)} — {formatDate(data[data.length - 1]?.date)}
+            </span>
+          </div>
         )}
-      </div>
+      </CardHeader>
 
-      {viewMode === 'raw' ? (
-        <div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '1rem',
-              flexWrap: 'wrap',
-              gap: '0.5rem',
-            }}
-          >
-            <div
-              style={{
-                fontSize: '0.875rem',
-                opacity: 0.7,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-              }}
-            >
-              <FileText size={14} />
-              JSON ({Math.round(JSON.stringify(data).length / 1024)} KB)
+      <CardContent>
+        <Tabs defaultValue="preview" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="preview">
+              <Eye className="h-4 w-4 mr-2" />
+              Preview
+            </TabsTrigger>
+            <TabsTrigger value="raw">
+              <FileText className="h-4 w-4 mr-2" />
+              Raw JSON
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="preview" className="mt-4 space-y-4">
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={expandAll}>
+                <Eye className="mr-2 h-4 w-4" />
+                Expand All
+              </Button>
+              <Button variant="outline" size="sm" onClick={collapseAll}>
+                <EyeOff className="mr-2 h-4 w-4" />
+                Collapse All
+              </Button>
             </div>
-            <button
-              className={`button ${
-                copyStatus === 'success'
-                  ? 'success'
-                  : copyStatus === 'error'
-                    ? 'error'
-                    : 'secondary'
-              }`}
-              onClick={handleCopyJson}
-              disabled={copyStatus === 'copying'}
-              style={{
-                fontSize: '0.875rem',
-                padding: '0.5rem 1rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                transition: 'all 0.2s ease',
-                opacity: copyStatus === 'copying' ? 0.7 : 1,
-              }}
-              aria-label={
-                copyStatus === 'success'
-                  ? 'JSON copied successfully'
-                  : copyStatus === 'error'
-                    ? 'Failed to copy JSON'
-                    : copyStatus === 'copying'
-                      ? 'Copying JSON...'
-                      : 'Copy JSON to clipboard'
-              }
-            >
-              {copyStatus === 'copying' && (
-                <div className="animate-spin">
-                  <Copy size={16} />
-                </div>
-              )}
-              {copyStatus === 'success' && <Check size={16} />}
-              {copyStatus === 'error' && <AlertCircle size={16} />}
-              {copyStatus === 'idle' && <Copy size={16} />}
 
-              {copyStatus === 'copying' && 'Copying...'}
-              {copyStatus === 'success' && 'Copied!'}
-              {copyStatus === 'error' && 'Failed'}
-              {copyStatus === 'idle' && 'Copy JSON'}
-            </button>
-          </div>
-
-          <div className="json-viewer">
-            <pre>{JSON.stringify(data, null, 2)}</pre>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <div
-            style={{
-              display: 'flex',
-              gap: '0.5rem',
-              marginBottom: '1rem',
-              justifyContent: 'flex-end',
-            }}
-          >
-            <button
-              className="button secondary"
-              onClick={expandAll}
-              style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem' }}
-            >
-              <Eye size={12} style={{ marginRight: '0.25rem' }} />
-              Expand All
-            </button>
-            <button
-              className="button secondary"
-              onClick={collapseAll}
-              style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem' }}
-            >
-              <EyeOff size={12} style={{ marginRight: '0.25rem' }} />
-              Collapse All
-            </button>
-          </div>
-
-          <div
-            style={{
-              maxHeight: '400px',
-              overflowY: 'auto',
-              background: 'rgba(0, 0, 0, 0.2)',
-              borderRadius: '8px',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-            }}
-          >
-            {data.map((item, index) => (
-              <div
-                key={index}
-                style={{
-                  borderBottom:
-                    index < data.length - 1 ? '1px solid rgba(255, 255, 255, 0.05)' : 'none',
-                  padding: '1rem',
-                }}
+            <ScrollArea className="h-[600px] rounded-md border p-4">
+              <Accordion
+                type="multiple"
+                value={expandedItems}
+                onValueChange={setExpandedItems}
+                className="w-full"
               >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    cursor: 'pointer',
-                    marginBottom: expandedItems.has(index) ? '0.75rem' : 0,
-                  }}
-                  onClick={() => toggleExpanded(index)}
-                >
-                  {expandedItems.has(index) ? (
-                    <ChevronDown size={16} />
-                  ) : (
-                    <ChevronRight size={16} />
-                  )}
-                  <Calendar size={14} />
-                  <strong>{item.date}</strong>
-                  <span style={{ opacity: 0.6, fontSize: '0.875rem' }}>
-                    {formatDate(item.date)}
-                  </span>
-                </div>
-
-                {expandedItems.has(index) && (
-                  <div style={{ marginLeft: '1.5rem', fontSize: '0.875rem' }}>
-                    {item.text && (
-                      <div style={{ marginBottom: '0.75rem' }}>
-                        <div
-                          style={{
-                            fontWeight: '500',
-                            marginBottom: '0.25rem',
-                            color: '#646cff',
-                          }}
-                        >
-                          Scripture Text:
-                        </div>
-                        <div
-                          style={{
-                            fontStyle: 'italic',
-                            padding: '0.5rem',
-                            background: 'rgba(100, 108, 255, 0.1)',
-                            borderRadius: '4px',
-                            borderLeft: '3px solid #646cff',
-                          }}
-                        >
-                          {item.text}
-                        </div>
+                {data.map((item, index) => (
+                  <AccordionItem key={index} value={`item-${index}`}>
+                    <AccordionTrigger className="hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">{item.date}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {formatDate(item.date)}
+                        </span>
                       </div>
-                    )}
+                    </AccordionTrigger>
 
-                    {item.textContent && (
-                      <div style={{ marginBottom: '0.75rem' }}>
-                        <div
-                          style={{
-                            fontWeight: '500',
-                            marginBottom: '0.25rem',
-                            color: '#10b981',
-                          }}
-                        >
-                          Bible Verse:
-                        </div>
-                        <div
-                          style={{
-                            padding: '0.5rem',
-                            background: 'rgba(16, 185, 129, 0.1)',
-                            borderRadius: '4px',
-                            lineHeight: 1.4,
-                          }}
-                        >
-                          {item.textContent}
-                        </div>
-                      </div>
-                    )}
+                    <AccordionContent className="space-y-4 pt-4">
+                      {item.text && (
+                        <Card className="border-l-4 border-l-blue-500">
+                          <CardHeader className="pb-2">
+                            <div className="flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400">
+                              <BookOpen className="h-4 w-4" />
+                              Scripture Text
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-sm italic">{item.text}</p>
+                          </CardContent>
+                        </Card>
+                      )}
 
-                    {item.explanation && (
-                      <div style={{ marginBottom: '0.75rem' }}>
-                        <div
-                          style={{
-                            fontWeight: '500',
-                            marginBottom: '0.25rem',
-                            color: '#f59e0b',
-                          }}
-                        >
-                          Explanation:
-                        </div>
-                        <div
-                          style={{
-                            padding: '0.5rem',
-                            background: 'rgba(245, 158, 11, 0.1)',
-                            borderRadius: '4px',
-                            lineHeight: 1.4,
-                          }}
-                        >
-                          {expandedTexts.has(index)
-                            ? item.explanation
-                            : truncateText(item.explanation, 200)}
-                          {item.explanation && item.explanation.length > 200 && (
-                            <button
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                color: '#f59e0b',
-                                textDecoration: 'underline',
-                                cursor: 'pointer',
-                                fontSize: '0.75rem',
-                                marginLeft: '0.25rem',
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const newExpanded = new Set(expandedTexts);
-                                if (newExpanded.has(index)) {
-                                  newExpanded.delete(index);
-                                } else {
-                                  newExpanded.add(index);
-                                }
-                                setExpandedTexts(newExpanded);
-                              }}
-                            >
-                              {expandedTexts.has(index) ? 'Show less' : 'Show more'}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                      {item.textContent && (
+                        <Card className="border-l-4 border-l-green-500">
+                          <CardHeader className="pb-2">
+                            <div className="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400">
+                              <BookOpen className="h-4 w-4" />
+                              Bible Verse
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-sm leading-relaxed">{item.textContent}</p>
+                          </CardContent>
+                        </Card>
+                      )}
 
-                    {item.reference && (
-                      <div>
-                        <div
-                          style={{
-                            fontWeight: '500',
-                            marginBottom: '0.25rem',
-                            color: '#8b5cf6',
-                          }}
-                        >
-                          Reference:
+                      {item.explanation && (
+                        <Card className="border-l-4 border-l-amber-500">
+                          <CardHeader className="pb-2">
+                            <div className="flex items-center gap-2 text-sm font-medium text-amber-600 dark:text-amber-400">
+                              <MessageSquare className="h-4 w-4" />
+                              Explanation
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <Collapsible open={expandedTexts.has(index)}>
+                              <p className="text-sm leading-relaxed">
+                                {expandedTexts.has(index)
+                                  ? item.explanation
+                                  : truncateText(item.explanation, 200)}
+                              </p>
+                              {item.explanation.length > 200 && (
+                                <CollapsibleTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="mt-2 h-auto p-0 text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleExpandedText(index);
+                                    }}
+                                  >
+                                    {expandedTexts.has(index) ? (
+                                      <>
+                                        <ChevronDown className="mr-1 h-3 w-3" />
+                                        Show less
+                                      </>
+                                    ) : (
+                                      <>
+                                        <ChevronRight className="mr-1 h-3 w-3" />
+                                        Show more
+                                      </>
+                                    )}
+                                  </Button>
+                                </CollapsibleTrigger>
+                              )}
+                            </Collapsible>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {item.reference && (
+                        <div className="flex items-center gap-2">
+                          <Link2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                          <Badge variant="secondary" className="font-mono text-xs">
+                            {item.reference}
+                          </Badge>
                         </div>
-                        <div
-                          style={{
-                            padding: '0.25rem 0.5rem',
-                            background: 'rgba(139, 92, 246, 0.1)',
-                            borderRadius: '4px',
-                            fontSize: '0.8rem',
-                            fontFamily: 'monospace',
-                          }}
-                        >
-                          {item.reference}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="raw" className="mt-4 space-y-4">
+            <div className="flex justify-end">
+              <Button
+                variant={
+                  copyStatus === 'success'
+                    ? 'default'
+                    : copyStatus === 'error'
+                      ? 'destructive'
+                      : 'outline'
+                }
+                size="sm"
+                onClick={handleCopyJson}
+                disabled={copyStatus === 'copying'}
+                className={cn(
+                  'transition-all duration-200',
+                  copyStatus === 'success' && 'bg-green-600 hover:bg-green-700'
                 )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+              >
+                {copyStatus === 'idle' && <Copy className="mr-2 h-4 w-4" />}
+                {copyStatus === 'copying' && <Copy className="mr-2 h-4 w-4 animate-pulse" />}
+                {copyStatus === 'success' && <Check className="mr-2 h-4 w-4" />}
+                {copyStatus === 'error' && <AlertCircle className="mr-2 h-4 w-4" />}
+                {copyStatus === 'idle' && 'Copy JSON'}
+                {copyStatus === 'copying' && 'Copying...'}
+                {copyStatus === 'success' && 'Copied!'}
+                {copyStatus === 'error' && 'Failed'}
+              </Button>
+            </div>
+
+            <ScrollArea className="h-[600px] rounded-md border">
+              <pre className="p-4 text-sm">
+                <code className="language-json">{JSON.stringify(data, null, 2)}</code>
+              </pre>
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 }
 

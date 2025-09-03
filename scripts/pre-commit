@@ -1,0 +1,83 @@
+#!/bin/sh
+# Git pre-commit hook for daily-text-epub-to-json
+# Runs code quality checks before allowing commits
+
+echo "🔍 Running pre-commit checks..."
+
+# Check if we're in the right directory
+if [ ! -f "package.json" ]; then
+    echo "❌ Error: package.json not found. Are you in the project root?"
+    exit 1
+fi
+
+# Function to run a check and handle errors
+run_check() {
+    local check_name="$1"
+    local command="$2"
+    
+    echo ""
+    echo "📋 Running: $check_name"
+    echo "────────────────────────────────"
+    
+    if eval "$command"; then
+        echo "✅ $check_name passed"
+        return 0
+    else
+        echo "❌ $check_name failed"
+        return 1
+    fi
+}
+
+# Track if any check fails
+FAILED=0
+
+# 1. Check formatting with Prettier
+if ! run_check "Prettier formatting" "npx prettier --check . --log-level error"; then
+    echo ""
+    echo "💡 Tip: Run 'npm run format' to fix formatting issues"
+    FAILED=1
+fi
+
+# 2. Run ESLint
+if ! run_check "ESLint" "npm run lint --silent"; then
+    echo ""
+    echo "💡 Tip: Run 'npm run lint:fix' to auto-fix some issues"
+    FAILED=1
+fi
+
+# 3. Run tests
+if ! run_check "Tests" "npm test --silent"; then
+    echo ""
+    echo "💡 Tip: Check the test output above to fix failing tests"
+    FAILED=1
+fi
+
+# 4. Check for console.log statements in production code (excluding tests and utils)
+echo ""
+echo "📋 Running: Console.log check"
+echo "────────────────────────────────"
+CONSOLE_LOGS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx)$' | grep -v test | grep -v spec | grep -v logger | xargs grep -l 'console\.log' 2>/dev/null)
+if [ ! -z "$CONSOLE_LOGS" ]; then
+    echo "⚠️  Warning: console.log found in:"
+    echo "$CONSOLE_LOGS"
+    echo ""
+    echo "💡 Tip: Remove console.log statements or use the logger utility instead"
+    # This is just a warning, not a failure
+fi
+
+# Final result
+echo ""
+echo "════════════════════════════════════════"
+if [ $FAILED -ne 0 ]; then
+    echo "❌ Pre-commit checks failed!"
+    echo ""
+    echo "Please fix the issues above before committing."
+    echo "You can bypass this check with 'git commit --no-verify' (not recommended)"
+    exit 1
+else
+    echo "✅ All pre-commit checks passed!"
+    echo ""
+    echo "Proceeding with commit..."
+fi
+
+exit 0

@@ -305,6 +305,34 @@ The tool generates an `output.json` file with 365 daily texts:
 
 ## 🧪 Development
 
+### Git Hooks
+
+This project includes pre-commit hooks to ensure code quality before commits:
+
+#### Installation
+
+```bash
+# Install hooks automatically (runs on npm install)
+npm install
+
+# Or install manually
+npm run install:hooks
+```
+
+#### What the Pre-commit Hook Checks
+
+1. **Prettier Formatting** - Ensures consistent code style
+2. **ESLint** - Checks for code quality issues
+3. **Tests** - Runs the full test suite
+4. **Console.log Detection** - Warns about console.log in production code
+
+#### Bypassing Hooks (Emergency Only)
+
+```bash
+# Skip pre-commit checks (not recommended)
+git commit --no-verify -m "Emergency fix"
+```
+
 ### Testing
 
 ```bash
