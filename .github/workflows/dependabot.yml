@@ -32,7 +32,7 @@ jobs:
           npm test
 
       - name: Auto-merge Dependabot PRs for minor/patch updates
-        uses: dependabot/fetch-metadata@v2
+        uses: dependabot/fetch-metadata@v3
         id: metadata
         with:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
