@@ -44,8 +44,8 @@
     "yauzl": "^3.3.0"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.28.6",
-    "@babel/preset-react": "^7.28.5",
+    "@babel/eslint-parser": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
     "@eslint/js": "^9.39.2",
     "@types/jest": "^30.0.0",
     "eslint": "^9.39.2",
