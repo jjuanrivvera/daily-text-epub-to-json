@@ -4,9 +4,9 @@ reviews:
   profile: chill
   poem: false
   auto_review:
-    ignore_title_keywords: ["WIP", "release:", "build(deps)"]
+    ignore_title_keywords: ['WIP', 'release:', 'build(deps)']
   path_instructions:
-    - path: "**/*.{js,mjs,cjs}"
+    - path: '**/*.{js,mjs,cjs}'
       instructions: |
         Comments explain WHY, not WHAT. No secrets in code. Flag unhandled promise rejections and unvalidated input.
 knowledge_base:
