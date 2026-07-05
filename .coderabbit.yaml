@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit config — JavaScript / Node project.
+reviews:
+  profile: chill
+  poem: false
+  auto_review:
+    ignore_title_keywords: ["WIP", "release:", "build(deps)"]
+  path_instructions:
+    - path: "**/*.{js,mjs,cjs}"
+      instructions: |
+        Comments explain WHY, not WHAT. No secrets in code. Flag unhandled promise rejections and unvalidated input.
+knowledge_base:
+  code_guidelines:
+    enabled: true
