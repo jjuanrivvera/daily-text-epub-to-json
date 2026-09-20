@@ -1,7 +1,7 @@
 # Daily Text EPUB to JSON
 
 [![CI](https://github.com/jjuanrivvera/daily-text-epub-to-json/actions/workflows/ci.yml/badge.svg)](https://github.com/jjuanrivvera/daily-text-epub-to-json/actions/workflows/ci.yml)
-[![Node Version](https://img.shields.io/badge/node-%3E%3D22.12.0-brightgreen)](https://nodejs.org)
+[![Node Version](https://img.shields.io/badge/node-%3E%3D22.13.0-brightgreen)](https://nodejs.org)
 [![License](https://img.shields.io/badge/license-ISC-blue)](LICENSE)
 
 Extract and process daily text content from Spanish EPUB files to JSON format. This tool processes Jehovah's Witnesses daily text publications, extracting scripture, explanations, and references into a structured JSON format. Available as a CLI tool, web interface, and REST API.
@@ -24,7 +24,7 @@ Extract and process daily text content from Spanish EPUB files to JSON format. T
 
 ## 📋 Prerequisites
 
-- Node.js 22.12.0 or higher (24.x to run the test suite)
+- Node.js 22.13.0 or higher (24.x to run the test suite)
 - npm 8.0.0 or higher
 - MongoDB (optional, for database storage)
 
